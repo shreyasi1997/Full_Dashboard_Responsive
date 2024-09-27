@@ -9,15 +9,15 @@ declare type SearchParamProps = {
   
   declare type SignUpParams = {
     firstName: string;
-    lastName: string;
-    address1: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    dateOfBirth: string;
-    ssn: string;
-    email: string;
-    password: string;
+  lastName: string;
+  address1?: string | undefined; // optional, can be undefined
+  city?: string | undefined; // optional, can be undefined
+  state?: string | undefined; // optional, can be undefined
+  postalCode?: string | undefined; // optional, can be undefined
+  dateOfBirth?: string | undefined; // optional, can be undefined
+  ssn?: string | undefined; // optional, can be undefined
+  email: string;
+  password: string;
   };
   
   declare type LoginUser = {

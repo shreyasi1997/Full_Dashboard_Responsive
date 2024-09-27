@@ -1,9 +1,11 @@
-"use client"
+'use client';
+import Image from 'next/image'
+import Link from 'next/link'
 import React, { useState } from 'react'
+import Logo from "../../public/icons/logo.png"
+import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
-import Logo from "../../public/icons/logo.png"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,72 +17,66 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import Link from 'next/link'
-import Image from 'next/image'
-import InputComponent from './CustomInput'
-import CustomInput from './CustomInput'
-import { authFormSchema } from '@/lib/utils'
-import singUp from '@/app/(auth)/sign-up/page'
-import singIn from '@/app/(auth)/sign-in/page'
+import CustomInput from './CustomInput';
+import { authFormSchema } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Singin } from '@/lib/action/user.Action';
+import { SingUp } from '@/lib/action/user.Action';
+// import {  signIn, signUp } from '@/lib/actions/user.actions';
+// import PlaidLink from './PlaidLink';
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-})
-
-
-const AuthForm = ({type}:{type: string}) => {
-  const formSchema = authFormSchema(type);
+const AuthForm = ({ type }: { type: string }) => {
+  
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: ''
-    },
-  })
- 
-  // 2. Define a submit handler.
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // setIsLoading(true);
+  const formSchema = authFormSchema(type);
 
-    try {
-      // Sign up with Appwrite & create plaid token
-      
-      if(type === 'sign-up') {
-        const userData = {
-          firstName: data.firstName!,
-          lastName: data.lastName!,
-          address1: data.address1!,
-          city: data.city!,
-          state: data.state!,
-          postalCode: data.postalCode!,
-          dateOfBirth: data.dateOfBirth!,
-          ssn: data.ssn!,
-          email: data.email,
-          password: data.password
+    // 1. Define your form.
+    const form = useForm<z.infer<typeof formSchema>>({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        email: "",
+        password: ''
+      },
+    })
+   
+    // 2. Define a submit handler.
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+      setIsLoading(true);
+
+      try {
+        // Sign up with Appwrite & create plaid token
+        
+        if(type === 'sign-up') {
+          const userData = {
+            firstName: data.firstName!,
+            lastName: data.lastName!,
+            address1: data.address1!,
+            city: data.city!,
+            state: data.state!,
+            postalCode: data.postalCode!,
+            dateOfBirth: data.dateOfBirth!,
+            ssn: data.ssn!,
+            email: data.email,
+            password: data.password
+          }
+
+          const newUser = await SingUp(userData);
+          console.log("set the data",newUser)
+          if(newUser) router.push('/sing-up')
+          setUser(newUser);
         }
-
-        // const newUser = await singUp(userData);
-
-        // setUser(newUser);
-
-        // if(response) router.push('/')
+     
+      } catch (error) {
+        console.log(error);
+       
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      // setIsLoading(false);
     }
-  }
-
 
   return (
     <section className="auth-form">
@@ -118,7 +114,7 @@ const AuthForm = ({type}:{type: string}) => {
         </div>
       ): (
         <>
-       <Form {...form}>
+          <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {type === 'sign-up' && (
                 <>
@@ -147,7 +143,7 @@ const AuthForm = ({type}:{type: string}) => {
                 <Button type="submit" disabled={isLoading} className="form-btn">
                   {isLoading ? (
                     <>
-                      {/* <Loader2 size={20} className="animate-spin" /> &nbsp; */}
+                      <Loader2 size={20} className="animate-spin" /> &nbsp;
                       Loading...
                     </>
                   ) : type === 'sign-in' 
@@ -170,7 +166,6 @@ const AuthForm = ({type}:{type: string}) => {
         </>
       )}
     </section>
-         
   )
 }
 
